@@ -35,8 +35,8 @@ test('API view exposes only completed periods and resolved round results', () =>
   assert.ok(Object.values(before.stats).every(periods => periods.length === 0));
   const intermission = getMatchView(2);
   assert.ok(Object.values(intermission.stats).every(periods => periods.length === 1));
-  assert.deepEqual(Object.keys(intermission.results).sort(), ['p1-ice','p1-pass','p1-shots']);
+  assert.deepEqual(Object.keys(intermission.results).sort(), ['p1-ice','p1-shots']);
   assert.deepEqual(intermission.scores, [2,1]);
   assert.deepEqual(getMatchView(6).scores, [6,3]);
-  assert.equal(Object.keys(getMatchView(6).results).length, 14);
+  assert.equal(Object.keys(getMatchView(6).results).length+Object.keys(getMatchView(6).teamResults).length, 14);
 });

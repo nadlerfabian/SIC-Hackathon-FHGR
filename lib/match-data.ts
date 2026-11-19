@@ -1,3 +1,4 @@
+import {resolveTeam,type TeamValues} from './team-picks.ts';
 import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import { parseCsv } from './csv.ts';
@@ -28,9 +29,14 @@ function load() {
     return { id: idOf(team, row.Jersey), name, firstName: row.FirstName, lastName: row.LastName, jersey: Number(row.Jersey), team, position: metadata?.position === 'Defence' ? 'Defense' : metadata?.position || 'Skater', photo: metadata?.photo || null };
   }).sort((a, b) => a.lastName.localeCompare(b.lastName));
   const stats: Record<string, Values[]> = Object.fromEntries(players.map(p => [p.id, [zero(), zero(), zero(), zero()]]));
+  const measurement=(raw:string|undefined)=>raw?.trim()?Number(raw):NaN;
+  const emptyTeam=():TeamValues=>({shots:0,xg:0,completedPasses:0,attemptedPasses:0});
+  const teamStats:Record<Team,TeamValues[]>={davos:[emptyTeam(),emptyTeam(),emptyTeam(),emptyTeam()],us:[emptyTeam(),emptyTeam(),emptyTeam(),emptyTeam()]};
   for (const period of [0, 1, 2, 3]) {
     for (const row of period === 0 ? totals : csv('Statistics_31_12_2025 P' + period)) {
       const id = idOf(row.Team === 'HC Davos' ? 'davos' : 'us', row.Jersey);
+      const t=teamStats[row.Team==='HC Davos'?'davos':'us'][period];
+      t.shots+=measurement(row.S);t.xg+=measurement(row.xGsum);t.completedPasses+=measurement(row.Passes);t.attemptedPasses+=measurement(row['All passes']);
       stats[id][period] = { ...zero(), iceTime: Number(row['TOI (s)']), skatingSpeed: Number(row['SPD TOP (km/h)']), distance: Number(row['Dist (m)']), shots: Number(row.S), passes: Number(row.Passes), shotSpeed: Number(row['S TOP (km/h)']), blocks: Number(row.BKS) };
     }
   }
@@ -80,19 +86,24 @@ function load() {
       const number = shot['StartPlayerName' + i].match(/^#(\d+)/)?.[1];
       if (xy && number) markers.push({ id: shot['StartPlayerId' + i], x: xy[0], y: xy[1], number: Number(number), team: shot['StartPlayerTeam' + i] === 'Away' ? 'davos' : 'us' });
     }
-    return { id: 'goal-' + index, period: Number(row.Period), clock, playerId: ids.get(row.EventPrimaryPlayerId)!, assists: [row.GoalAssist1Id, row.GoalAssist2Id].map(tag => ids.get(tag)).filter((id): id is string => Boolean(id)), strength: row.TeamStrength, shotSpeed: Number(shot?.ShotSpeed) > 0 ? Number(shot.ShotSpeed) : null, xg: shot?.ShotXG ? Number(shot.ShotXG) : null, shot: coordinate(shot?.EventStartCoordinate), markers, replay: buildReplay(events, events.indexOf(row)) };
+    return { id: 'goal-' + index, timestamp: Number(row.Timestamp), period: Number(row.Period), clock, playerId: ids.get(row.EventPrimaryPlayerId)!, assists: [row.GoalAssist1Id, row.GoalAssist2Id].map(tag => ids.get(tag)).filter((id): id is string => Boolean(id)), strength: row.TeamStrength, shotSpeed: Number(shot?.ShotSpeed) > 0 ? Number(shot.ShotSpeed) : null, xg: shot?.ShotXG ? Number(shot.ShotXG) : null, shot: coordinate(shot?.EventStartCoordinate), markers, replay: buildReplay(events, events.indexOf(row)) };
   });
-  return { players, stats, scores, goals, eventCount: events.length };
+  return { players, stats, teamStats, scores, goals, eventCount: events.length };
 }
 export function getMatchData() { return cached ??= load(); }
 export function getMatchView(stage: number): MatchView {
   const data = getMatchData(); const availablePeriods = completedPeriods(stage);
   const results: MatchView['results'] = {};
+  const teamResults:MatchView['teamResults']={};
   for (const round of ROUNDS) if (stage >= round.reveals) {
-    for (const q of round.questions) results[q.id] = rankPlayers(data.players.map(p => ({ playerId: p.id, value: data.stats[p.id][round.scope][q.metric] })), round.points);
+    for (const q of round.questions) {
+      if(q.kind==='team')teamResults[q.id]=resolveTeam(q.metric,data.teamStats.davos[round.scope],data.teamStats.us[round.scope]);
+      else results[q.id] = rankPlayers(data.players.map(p => ({ playerId: p.id, value: data.stats[p.id][round.scope][q.metric] })), round.points);
+    }
   }
   return {
-    players: data.players, availablePeriods, results,
+    players: data.players, availablePeriods, results, teamResults,
+    teamStats:{davos:data.teamStats.davos.slice(1,availablePeriods+1),us:data.teamStats.us.slice(1,availablePeriods+1)},
     goals: data.goals.filter(goal => goal.period <= availablePeriods),
     ...(availablePeriods === 3 ? { totals: Object.fromEntries(data.players.map(p => [p.id, data.stats[p.id][0]])) } : {}),
     stats: Object.fromEntries(data.players.map(p => [p.id, data.stats[p.id].slice(1, availablePeriods + 1)])),

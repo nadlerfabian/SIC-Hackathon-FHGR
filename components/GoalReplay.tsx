@@ -26,7 +26,7 @@ export default function GoalReplay({ goal }: { goal: GoalHighlight }) {
   const marker = state.markers.find(m=>m.id===selected);
   function step(value: number){setPlaying(false);setIndex(value);setSelected('');}
   return <div className="replay">
-    <div className="moment-intro"><strong>The final actions</strong><span>{events.length} recorded moments · no movement inferred</span></div>
+    <div className="moment-intro"><strong>Recorded actions</strong><span>{events.length} recorded moments · no movement inferred</span></div>
     <div className="replay-status"><span>PERIOD {goal.period} · {clock(event.clock)} ELAPSED</span><span>{state.reusedShot?'Scoring-shot positions':state.markers.length?'Recorded snapshot':'Player positions unavailable'}</span></div>
     <div className="scene-rink replay-rink"><HockeyRink markers={state.markers.map(m=>({...m,color:TEAMS[m.team].color,highlighted:m.id===state.actor}))} selectedId={selected} onSelect={id=>{setPlaying(false);setSelected(id);}}>
       <defs><marker id={arrowId} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0 10 5 0 10Z" fill={color}/></marker></defs>
