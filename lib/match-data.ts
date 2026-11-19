@@ -11,11 +11,13 @@ type Roster = { team: string; name: string; jersey: number; position: string; ph
 const normalize = (name: string) => name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z]/gi, '').toLowerCase();
 let cached: ReturnType<typeof load> | undefined;
 function load() {
-  const directory = path.join(process.cwd(), 'data'); const files = readdirSync(directory);
+  // Deployment supplies these files at runtime; do not trace private data into the build.
+  const directory = path.resolve(/* turbopackIgnore: true */ process.env.MATCH_DATA_DIR || path.join(process.cwd(), 'data'));
+  const files = readdirSync(/* turbopackIgnore: true */ directory);
   const csv = (part: string) => {
     const file = files.find(file => file.includes(part) && file.endsWith('.csv'));
     if (!file) throw new Error('Missing match source: ' + part);
-    return parseCsv(readFileSync(path.join(directory, file), 'utf8'));
+    return parseCsv(readFileSync(/* turbopackIgnore: true */ path.join(/* turbopackIgnore: true */ directory, file), 'utf8'));
   };
   const totals = csv('Statistics_31_12_2025 All'); const events = csv('Wisehockey_Match_Events');
   const idOf = (team: Team, jersey: string) => team + '-' + jersey;

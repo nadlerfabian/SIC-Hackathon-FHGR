@@ -1,0 +1,17 @@
+# Private CSVs are supplied separately as the Render Secret File "match-data.b64".
+services:
+  - type: web
+    name: spengler-picks-demo
+    runtime: node
+    plan: free
+    region: frankfurt
+    branch: main
+    autoDeployTrigger: commit
+    buildCommand: pnpm install --frozen-lockfile && pnpm run test:deployment && pnpm build
+    startCommand: pnpm run render:start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 24.22.1
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
