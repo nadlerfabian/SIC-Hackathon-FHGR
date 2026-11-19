@@ -14,7 +14,7 @@ export const PLAYER_LESSONS:Record<Metric,string> = {
 export function revealValue(metric:Metric,value:number) {
   const units:Partial<Record<Metric,string>>={goals:'goal',assists:'assist',shots:'shot',passes:'pass',blocks:'block'};
   const unit=units[metric];if(unit)return value+' '+unit+(value===1?'':metric==='passes'?'es':'s');
-  if(metric==='passSpeed')return value.toFixed(1)+' source units';
+  if(metric==='passSpeed')return value.toFixed(1)+' km/h';
   if(metric==='iceTime'){const seconds=Math.round(value);return Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0');}
   return formatValue(metric,value);
 }

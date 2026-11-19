@@ -44,6 +44,6 @@ test('metric formatting uses meaningful units and correct ordinal suffixes',()=>
   assert.equal(revealValue('passes',12),'12 passes');
   assert.equal(revealValue('passes',1),'1 pass');
   assert.equal(revealValue('iceTime',119.8),'2:00');
-  assert.equal(revealValue('passSpeed',12),'12.0 source units');
+  assert.equal(revealValue('passSpeed',12),'12.0 km/h');
   assert.deepEqual([1,2,3,4,11,12,13,21].map(ordinal),['1st','2nd','3rd','4th','11th','12th','13th','21st']);
 });
