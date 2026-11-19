@@ -8,11 +8,14 @@
     "build": "next build",
     "start": "next start --hostname 127.0.0.1",
     "typecheck": "tsc --noEmit",
-    "test": "node --experimental-strip-types --test tests/*.test.ts",
-    "assets:fetch": "node scripts/fetch-portraits.mjs"
+    "test": "node --experimental-strip-types --test tests/*.test.ts tests/*.test.mjs",
+    "assets:fetch": "node scripts/fetch-portraits.mjs",
+    "test:deployment": "node --experimental-strip-types --test tests/game.test.ts tests/render-data.test.mjs",
+    "render:pack-data": "node scripts/pack-render-data.mjs",
+    "render:start": "node scripts/start-render.mjs"
   },
   "dependencies": {
-    "next": "16.4.0",
+    "next": "16.4.5",
     "react": "19.3.0",
     "react-dom": "19.3.0"
   },
@@ -21,5 +24,9 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "typescript": "^5.9.0"
+  },
+  "packageManager": "pnpm@11.25.0",
+  "engines": {
+    "node": ">=24 <25"
   }
 }

@@ -241,3 +241,8 @@ tmp/
 
 # data
 data/
+
+# Private Render data bundle and runtime copies
+.render-secrets/
+.render-data/
+match-data.b64

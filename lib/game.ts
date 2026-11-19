@@ -57,7 +57,7 @@ export function formatValue(metric: Metric, value: number): string {
   if (metric === 'distance') return value.toLocaleString('en-GB') + ' m';
   if (metric === 'skatingSpeed' || metric === 'shotSpeed') return value.toFixed(1) + ' km/h';
   // PassSpeed units are not verified in the supplied event documentation.
-  if (metric === 'passSpeed') return value.toFixed(1) + ' km/h';
+  if (metric === 'passSpeed') return value.toFixed(1) + ' source units';
   return String(value);
 }
 export type GoalHighlight = { id: string; period: number; clock: number; playerId: string; assists: string[]; strength: string; shotSpeed: number | null; xg: number | null; shot: [number, number] | null; markers: { id: string; x: number; y: number; number: number; team: Team }[]; replay: ReplaySequence };

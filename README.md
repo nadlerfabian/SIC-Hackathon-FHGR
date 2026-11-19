@@ -2,7 +2,7 @@
 
 A mobile-friendly hockey prediction and match review app for the 2026 Sport Innovation Challenge. It replays the recorded 31 December 2025 game between HC Davos and the U.S. Collegiate Selects.
 
-FHGR team: Silvan Joos, Fabian Nadler, Jann Rudolph, Lars Cools.
+FHGR team: Silvan Joos, Fabian Nadler, Lars Cools, Jann Rudolph.
 
 ## Run locally
 
@@ -69,3 +69,11 @@ Match picks are worth up to 100 points each; period picks are worth up to 50. Se
 - `pnpm assets:fetch` optionally downloads player portraits. Jersey artwork is shown when portraits are unavailable. See [brand asset sources](public/brand/SOURCES.md) for the club and tournament imagery.
 - `lib/match-data.ts` loads the CSVs. Period goals and assists are calculated from events because the period exports repeat match totals for those fields. Fastest-pass picks use successful passes.
 - Goal Centre shows up to five recorded actions before a goal. It uses event snapshots without filling gaps with simulated movement.
+
+## Render Free deployment
+
+See [docs/RENDER-FREE.md](docs/RENDER-FREE.md) for setup and secret-file instructions
+for an authorised demo. Code deploys automatically from the linked GitHub branch.
+Match CSVs stay outside Git and `public/`: `pnpm run render:pack-data` creates a
+private, ignored Secret File. `pnpm run render:start` restores and validates it at
+every start. Do not commit the generated `.render-secrets/match-data.b64` file.
